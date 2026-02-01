@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Twenty Questions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 700px;
+            padding: 40px;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .game-status {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .questions-left {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .hint {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .question-area {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .question-input {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+        }
+        .question-input:focus {
+            border-color: #667eea;
+        }
+        .question-input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        button {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .ask-btn {
+            background: #667eea;
+            color: white;
+        }
+        .ask-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        .ask-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .guess-btn {
+            background: #10b981;
+            color: white;
+        }
+        .guess-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        .new-game-btn {
+            background: #f59e0b;
+            color: white;
+        }
+        .new-game-btn:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+        .difficulty-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .difficulty-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        .difficulty-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .difficulty-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        .difficulty-btn.noob { border-color: #10b981; }
+        .difficulty-btn.noob.active { background: #10b981; border-color: #10b981; }
+        .difficulty-btn.easy { border-color: #3b82f6; }
+        .difficulty-btn.easy.active { background: #3b82f6; border-color: #3b82f6; }
+        .difficulty-btn.normal { border-color: #667eea; }
+        .difficulty-btn.normal.active { background: #667eea; border-color: #667eea; }
+        .difficulty-btn.hard { border-color: #f59e0b; }
+        .difficulty-btn.hard.active { background: #f59e0b; border-color: #f59e0b; }
+        .difficulty-btn.expert { border-color: #ef4444; }
+        .difficulty-btn.expert.active { background: #ef4444; border-color: #ef4444; }
+        .difficulty-btn.extreme { border-color: #dc2626; }
+        .difficulty-btn.extreme.active { background: #dc2626; border-color: #dc2626; }
+        .difficulty-btn.hacker { border-color: #000; }
+        .difficulty-btn.hacker.active { background: #000; border-color: #000; }
+        .conversation {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .qa-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .answer {
+            color: #333;
+            padding-left: 20px;
+            font-size: 1.1em;
+        }
+        .answer.yes {
+            color: #10b981;
+        }
+        .answer.no {
+            color: #ef4444;
+        }
+        .answer.maybe {
+            color: #f59e0b;
+        }
+        .result {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+        .result.win {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .result.lose {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .character-name {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .ai-thinking {
+            font-size: 1.5em;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        .api-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .api-modal.show {
+            display: flex;
+        }
+        .api-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .api-modal h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .api-modal input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            margin: 10px 0;
+        }
+        .api-modal button {
+            padding: 12px 24px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .api-modal .save-btn {
+            background: #667eea;
+            color: white;
+        }
+        .api-modal .cancel-btn {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="api-modal" id="apiModal">
+        <div class="api-modal-content">
+            <h2>🔑 API Configuration</h2>
+            <p>Enter your Anthropic API token to enable AI-powered responses:</p>
+            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">Note: Uses a CORS proxy (cors-anywhere.followalong.com) to make API calls work in the browser.</p>
+            <input type="password" id="apiTokenInput" placeholder="sk-ant-...">
+            <div>
+                <button class="save-btn" onclick="saveApiToken()">Save</button>
+                <button class="cancel-btn" onclick="closeApiModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <h1 onclick="secretClick()" style="cursor: pointer;" title="Triple-click or press Ctrl+K for settings">🎮 VR Twenty Questions</h1>
+        <p class="subtitle">I'm thinking of a VR game character... Ask yes/no questions to guess who!</p>
+
+        <div class="difficulty-selector">
+            <button class="difficulty-btn noob" onclick="setDifficulty('noob', 50)">Noob (50)</button>
+            <button class="difficulty-btn easy" onclick="setDifficulty('easy', 35)">Easy (35)</button>
+            <button class="difficulty-btn normal active" onclick="setDifficulty('normal', 20)">Normal (20)</button>
+            <button class="difficulty-btn hard" onclick="setDifficulty('hard', 15)">Hard (15)</button>
+            <button class="difficulty-btn expert" onclick="setDifficulty('expert', 10)">Expert (10)</button>
+            <button class="difficulty-btn extreme" onclick="setDifficulty('extreme', 5)">Extreme (5)</button>
+            <button class="difficulty-btn hacker" onclick="setDifficulty('hacker', 1)">Hacker (1)</button>
+        </div>
+
+        <div class="game-status">
+            <div class="questions-left">Questions Left: <span id="questionsLeft">20</span></div>
+            <div class="hint" id="gameHint">Ask me yes/no questions like "Is it from UG?" or "Does it have teeth?"</div>
+        </div>
+
+        <div id="resultArea"></div>
+
+        <div class="question-area">
+            <input
+                type="text"
+                id="questionInput"
+                class="question-input"
+                placeholder="Type your yes/no question here..."
+                onkeypress="if(event.key==='Enter') askQuestion()"
+            >
+            <div id="loadingIndicator" class="ai-thinking"></div>
+        </div>
+
+        <div class="button-group">
+            <button class="ask-btn" onclick="askQuestion()" id="askBtn">Ask Question</button>
+            <button class="guess-btn" onclick="makeGuess()" id="guessBtn">Make a Guess!</button>
+        </div>
+
+        <div class="conversation" id="conversation">
+            <div class="empty-state">No questions asked yet. Start guessing!</div>
+        </div>
+
+        <button class="new-game-btn" onclick="newGame()" style="width: 100%;">New Game</button>
+    </div>
+
+    <script>
+        const characters = [
+            // UG Characters
+            { name: "Mammothor", game: "UG", type: "creature", traits: ["dinosaur", "fictional", "large", "powerful", "tank"] },
+            { name: "Newbiesaur", game: "UG", type: "creature", traits: ["dinosaur", "fictional", "starter", "small", "hunter"] },
+            { name: "Grugadon", game: "UG", type: "creature", traits: ["dinosaur", "fictional", "powerful", "tank"] },
+            { name: "Triskeletops", game: "UG", type: "boss", traits: ["dinosaur", "titan", "boss", "huge", "scary", "powerful", "skeleton"] },
+            { name: "Magmadon", game: "UG", type: "boss", traits: ["dinosaur", "titan", "boss", "fire", "huge", "scary", "powerful", "lava"] },
+            { name: "Cryodon", game: "UG", type: "boss", traits: ["dinosaur", "titan", "boss", "ice", "cold", "huge", "scary", "powerful"] },
+            { name: "Flaptor", game: "UG", type: "boss", traits: ["dinosaur", "titan", "boss", "flies", "flying", "huge", "scary", "powerful", "bird"] },
+            { name: "Razorclaw", game: "UG", type: "creature", traits: ["dinosaur", "fictional", "hunter", "small", "weak", "alpha"] },
+            { name: "Chadlodon", game: "UG", type: "creature", traits: ["dinosaur", "fictional", "sigma", "beard", "ugly", "fat", "chunky", "chonké", "hunter"] },
+            { name: "Swoopjaw", game: "UG", type: "creature", traits: ["dinosaur", "fictional", "glider", "fast", "flies"] },
+            { name: "UG Player", game: "UG", type: "player", traits: ["player", "hero", "human", "dumb", "scammer", "rider", "gorilla", "monkey"] },
+
+            // Animal Company Monsters
+            { name: "Anglerfish", game: "Animal Company", type: "monster", traits: ["monster", "blue", "big", "teeth", "scary", "fish", "turns off light", "evil"] },
+            { name: "Mimic", game: "Animal Company", type: "monster", traits: ["monster", "disguise", "tricky", "jumps", "changes color", "teeth", "evil"] },
+            { name: "Big Head", game: "Animal Company", type: "monster", traits: ["monster", "ugly", "larva", "giant", "big", "teeth", "kills when looked at", "scary", "evil"] },
+            { name: "Cutie", game: "Animal Company", type: "monster", traits: ["monster", "seal", "cute", "small", "beige", "kills when looked at", "deceptive", "evil"], aliases: ["seal", "labubu", "dead body"] },
+            { name: "Ogre", game: "Animal Company", type: "monster", traits: ["monster", "huge", "ugly", "teeth", "eyes", "throws boulders", "throws rocks", "scary", "evil"], aliases: ["oggy boi", "oggy boy"] },
+            { name: "Spider", game: "Animal Company", type: "monster", traits: ["monster", "spider", "insect", "scary", "webs", "crawls", "evil"] },
+            { name: "Red Light Green Light", game: "Animal Company", type: "monster", traits: ["monster", "creepy", "kills when moving", "scary", "evil", "red", "green", "robot", "big", "fast"] },
+            { name: "Cyst", game: "Animal Company", type: "monster", traits: ["monster", "red", "eye", "tentacle", "scary", "evil"] },
+            { name: "Chicken", game: "Animal Company", type: "monster", traits: ["monster", "scary", "fast", "loud", "golden egg", "evil"] },
+            { name: "Turkey", game: "Animal Company", type: "monster", traits: ["monster", "weak", "blue", "red", "drops food", "small", "evil"] },
+            { name: "Funny Animal Player", game: "Animal Company", type: "player", traits: ["animal", "player", "cute", "funny", "hero"] },
+
+            // Gorilla Tag
+            { name: "Gorilla", game: "Gorilla Tag", type: "player", traits: ["gorilla", "monkey", "player", "normal", "hero"] },
+            { name: "Lava Monke", game: "Gorilla Tag", type: "enemy", traits: ["gorilla", "monkey", "red", "lava", "infected", "enemy", "evil"], aliases: ["lava monkey"] },
+            { name: "Doug the Bug", game: "Gorilla Tag", type: "creature", traits: ["bug", "insect", "small", "green", "purple", "flies", "forest"] },
+            { name: "Dougdina", game: "Gorilla Tag", type: "creature", traits: ["bug", "insect", "small", "green", "flies", "girl", "love"], aliases: ["dougette", "doug's girlfriend"] },
+            { name: "Matt the Bat", game: "Gorilla Tag", type: "creature", traits: ["bat", "flies", "caves", "small"] },
+            { name: "Mark the Shark", game: "Gorilla Tag", type: "creature", traits: ["shark", "fish", "swims", "beach", "water", "scary"] }
+        ];
+
+        let currentCharacter = null;
+        let questionsAsked = 0;
+        let conversation = [];
+        let gameOver = false;
+        let maxQuestions = 20;
+        let currentDifficulty = 'normal';
+        let apiToken = localStorage.getItem('anthropic_api_token') || '';
+        let clickCount = 0;
+        let clickTimer = null;
+
+        function secretClick() {
+            clickCount++;
+            console.log('Click count:', clickCount); // Debug
+            if (clickTimer) clearTimeout(clickTimer);
+
+            if (clickCount === 3) {
+                console.log('Opening API modal'); // Debug
+                const modal = document.getElementById('apiModal');
+                console.log('Modal element:', modal); // Debug
+                if (modal) {
+                    modal.classList.add('show');
+                }
+                clickCount = 0;
+            }
+
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+            }, 1000);
+        }
+
+        // Keyboard shortcut: Ctrl+K
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('apiModal').classList.add('show');
+            }
+        });
+
+        function saveApiToken() {
+            const token = document.getElementById('apiTokenInput').value.trim();
+            if (token) {
+                apiToken = token;
+                localStorage.setItem('anthropic_api_token', token);
+                alert('API token saved! AI responses are now enabled.');
+            }
+            closeApiModal();
+        }
+
+        function closeApiModal() {
+            document.getElementById('apiModal').classList.remove('show');
+        }
+
+        async function getAIAnswer(question) {
+            if (!apiToken) {
+                console.log('No API token, using rule-based system');
+                return null; // Fall back to rule-based system
+            }
+
+            console.log('Calling AI with question:', question);
+
+            try {
+                // Use CORS proxy to avoid browser CORS issues
+                const corsProxy = 'https://cors-anywhere.followalong.com/';
+                const apiUrl = 'https://api.anthropic.com/v1/messages';
+
+                const response = await fetch(corsProxy + apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiToken,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-5',
+                        max_tokens: 150,
+                        temperature: 0.8,
+                        messages: [{
+                            role: 'user',
+                            content: `You are playing 20 questions. The secret character is "${currentCharacter.name}" from the game "${currentCharacter.game}".
+Character details: Type: ${currentCharacter.type}, Traits: ${currentCharacter.traits.join(', ')}.
+
+Rules:
+- Be expressive and emotional with your Yes/No answers! Use variety and personality.
+- GOOD emotional responses: "Yes! ✓", "Nope! ✗", "Absolutely!", "Not quite!", "Sort of!", "Kinda!", "Not really!", "Definitely not!", "Oh yeah!", "Nah!"
+- You can add excitement or disappointment but NEVER describe the character.
+- ABSOLUTELY NO DESCRIPTIVE WORDS ABOUT THE CHARACTER - no adjectives like "cold", "hot", "scary", "cute", "big", "small", "frosty", "icy", etc.
+- If asked about colors and it's wrong, you can say "Different color!" or "Another color!" but NEVER say which color.
+- If asked about size and it's wrong, you can say "Not quite!" or "Different size!" but NEVER say "bigger" or "smaller".
+- DO NOT VOLUNTEER ANY INFORMATION BEYOND YES/NO/MAYBE.
+- NO EMOJIS - only ✓ and ✗ symbols allowed.
+- Keep responses to 1-4 words maximum.
+- BANNED PHRASES: Any that describe what the character IS like. Only say what it ISN'T.
+- If asked about specific character names, say "Nice try!" or "No cheating!"
+
+Question: ${question}
+
+Answer (be creative but brief):`
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API error:', response.status, errorText);
+                    return null;
+                }
+
+                const data = await response.json();
+                const aiAnswer = data.content[0].text.trim();
+                console.log('AI response:', aiAnswer);
+                return aiAnswer;
+            } catch (error) {
+                console.error('AI error:', error);
+                console.log('Falling back to rule-based system');
+                return null; // Fall back to rule-based system
+            }
+        }
+
+        function startGame() {
+            currentCharacter = characters[Math.floor(Math.random() * characters.length)];
+            questionsAsked = 0;
+            conversation = [];
+            gameOver = false;
+            updateUI();
+            console.log("Secret character:", currentCharacter.name); // For testing
+        }
+
+        function setDifficulty(difficulty, questions) {
+            maxQuestions = questions;
+            currentDifficulty = difficulty;
+
+            // Update active button
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Restart game with new difficulty
+            startGame();
+        }
+
+        async function askQuestion() {
+            if (gameOver) return;
+
+            const input = document.getElementById('questionInput');
+            const question = input.value.trim();
+
+            if (!question) {
+                alert("Please type a question!");
+                return;
+            }
+
+            if (questionsAsked >= maxQuestions) {
+                alert("You're out of questions! Make your final guess!");
+                return;
+            }
+
+            // Check if the question contains any character name (anti-cheat)
+            // But allow game names to be mentioned
+            const questionLower = question.toLowerCase();
+            const gameNames = ['ug', 'animal company', 'ac', 'gorilla tag', 'gtag'];
+
+            for (const character of characters) {
+                const nameLower = character.name.toLowerCase();
+
+                // Skip if the character name is part of a game name being asked about
+                let isGameNameQuestion = false;
+                for (const gameName of gameNames) {
+                    if (questionLower.includes(gameName) && nameLower.includes('gorilla')) {
+                        isGameNameQuestion = true;
+                        break;
+                    }
+                }
+
+                if (!isGameNameQuestion && questionLower.includes(nameLower)) {
+                    alert("No cheating! Don't ask about specific character names!");
+                    return;
+                }
+                // Check aliases too
+                if (character.aliases) {
+                    for (const alias of character.aliases) {
+                        if (questionLower.includes(alias.toLowerCase())) {
+                            alert("No cheating! Don't ask about specific character names!");
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // Try AI first, fall back to rule-based
+            let answer;
+            if (apiToken) {
+                console.log('API token present, attempting AI response');
+
+                // Show loading indicator and disable inputs
+                const loadingId = Date.now();
+                document.getElementById('questionInput').disabled = true;
+                document.getElementById('askBtn').disabled = true;
+                document.getElementById('guessBtn').disabled = true;
+
+                // Show loading icon
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                loadingIndicator.innerHTML = '🤔';
+                loadingIndicator.classList.add('show');
+
+                answer = await getAIAnswer(question);
+                console.log('AI answer result:', answer);
+
+                // Hide loading indicator and re-enable inputs
+                loadingIndicator.innerHTML = '';
+                loadingIndicator.classList.remove('show');
+                document.getElementById('questionInput').disabled = false;
+                document.getElementById('askBtn').disabled = false;
+                document.getElementById('guessBtn').disabled = false;
+            }
+            if (!answer) {
+                console.log('Using rule-based answer');
+                answer = getAnswer(question);
+            }
+
+            questionsAsked++;
+
+            conversation.push({ question, answer });
+            input.value = '';
+
+            if (questionsAsked >= maxQuestions) {
+                document.getElementById('gameHint').textContent = "Out of questions! Make your final guess!";
+            }
+
+            updateUI();
+        }
+
+        function getAnswer(question) {
+            const q = question.toLowerCase();
+            const char = currentCharacter;
+
+            // Game questions
+            if (q.includes('ug')) return char.game === "UG" ? "Yes! ✓" : "No ✗";
+            if (q.includes('animal company') || q.includes('ac')) return char.game === "Animal Company" ? "Yes! ✓" : "No ✗";
+            if (q.includes('gorilla tag') || q.includes('gtag')) return char.game === "Gorilla Tag" ? "Yes! ✓" : "No ✗";
+
+            // Type questions
+            if (q.includes('monster') || q.includes('enemy')) {
+                return (char.type === "monster" || char.type === "enemy") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('boss') || q.includes('titan')) {
+                return char.type === "boss" ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('player') || q.includes('hero')) {
+                return char.type === "player" ? "Yes! ✓" : "No ✗";
+            }
+
+            // Trait-based questions
+            if (q.includes('dinosaur') || q.includes('dino')) {
+                return char.traits.includes("dinosaur") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('cute')) {
+                return char.traits.includes("cute") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('scary') || q.includes('dangerous')) {
+                return char.traits.includes("scary") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('big') || q.includes('large') || q.includes('huge') || q.includes('giant')) {
+                return (char.traits.includes("big") || char.traits.includes("large") || char.traits.includes("huge") || char.traits.includes("giant")) ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('small') || q.includes('little')) {
+                return char.traits.includes("small") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('teeth')) {
+                return char.traits.includes("teeth") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('kill') && q.includes('look')) {
+                return char.traits.includes("kills when looked at") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('blue')) {
+                return char.traits.includes("blue") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('red') || q.includes('lava')) {
+                return (char.traits.includes("red") || char.traits.includes("lava")) ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('fire') || q.includes('hot')) {
+                return char.traits.includes("fire") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('lava')) {
+                return char.traits.includes("lava") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('skeleton') || q.includes('bones')) {
+                return char.traits.includes("skeleton") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('bird')) {
+                return char.traits.includes("bird") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('ice') || q.includes('cold') || q.includes('frozen')) {
+                return char.traits.includes("ice") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('animal')) {
+                return char.traits.includes("animal") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('gorilla') || q.includes('monkey') || q.includes('ape')) {
+                return (char.traits.includes("gorilla") || char.traits.includes("monkey")) ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('seal')) {
+                return char.traits.includes("seal") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('fish')) {
+                return char.traits.includes("fish") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('disguise') || q.includes('mimic') || q.includes('fake')) {
+                return char.traits.includes("disguise") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('jump')) {
+                return char.traits.includes("jumps") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('powerful') || q.includes('strong')) {
+                return char.traits.includes("powerful") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('evil') || q.includes('bad')) {
+                return char.traits.includes("evil") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('ugly')) {
+                return char.traits.includes("ugly") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('light') || q.includes('flashlight')) {
+                return char.traits.includes("turns off light") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('bug') || q.includes('insect')) {
+                return (char.traits.includes("bug") || char.traits.includes("insect")) ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('bat')) {
+                return char.traits.includes("bat") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('shark')) {
+                return char.traits.includes("shark") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('fly') || q.includes('flies') || q.includes('flying')) {
+                return char.traits.includes("flies") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('swim') || q.includes('swims') || q.includes('swimming')) {
+                return char.traits.includes("swims") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('forest') || q.includes('woods')) {
+                return char.traits.includes("forest") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('cave') || q.includes('caves')) {
+                return char.traits.includes("caves") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('beach') || q.includes('water') || q.includes('ocean')) {
+                return (char.traits.includes("beach") || char.traits.includes("water")) ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('throw') || q.includes('boulder') || q.includes('rock')) {
+                return (char.traits.includes("throws boulders") || char.traits.includes("throws rocks")) ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('eyes')) {
+                return char.traits.includes("eyes") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('green')) {
+                return char.traits.includes("green") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('purple')) {
+                return char.traits.includes("purple") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('spider')) {
+                return char.traits.includes("spider") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('web') || q.includes('webs')) {
+                return char.traits.includes("webs") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('crawl') || q.includes('crawls')) {
+                return char.traits.includes("crawls") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('doll')) {
+                return char.traits.includes("doll") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('creepy')) {
+                return char.traits.includes("creepy") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('move') || q.includes('moving')) {
+                return char.traits.includes("kills when moving") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('tentacle')) {
+                return char.traits.includes("tentacle") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('chicken')) {
+                return char.traits.includes("chicken") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('fast') || q.includes('quick') || q.includes('speed')) {
+                return char.traits.includes("fast") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('loud') || q.includes('noise') || q.includes('sound')) {
+                return char.traits.includes("loud") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('egg') || q.includes('golden')) {
+                return char.traits.includes("golden egg") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('turkey')) {
+                return char.traits.includes("turkey") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('weak')) {
+                return char.traits.includes("weak") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('drop') || q.includes('drops') || q.includes('food')) {
+                return char.traits.includes("drops food") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('hunter') || q.includes('hunt')) {
+                return char.traits.includes("hunter") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('alpha')) {
+                return char.traits.includes("alpha") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('tank')) {
+                return char.traits.includes("tank") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('sigma')) {
+                return char.traits.includes("sigma") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('beard')) {
+                return char.traits.includes("beard") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('fat') || q.includes('chunky') || q.includes('chonk')) {
+                return (char.traits.includes("fat") || char.traits.includes("chunky") || char.traits.includes("chonké")) ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('glide') || q.includes('glider')) {
+                return char.traits.includes("glider") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('human')) {
+                return char.traits.includes("human") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('dumb') || q.includes('stupid')) {
+                return char.traits.includes("dumb") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('scam') || q.includes('scammer')) {
+                return char.traits.includes("scammer") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('ride') || q.includes('rider')) {
+                return char.traits.includes("rider") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('girl') || q.includes('female')) {
+                return char.traits.includes("girl") ? "Yes! ✓" : "No ✗";
+            }
+            if (q.includes('love') || q.includes('girlfriend') || q.includes('boyfriend')) {
+                return char.traits.includes("love") ? "Yes! ✓" : "No ✗";
+            }
+
+            // Default responses for unclear questions
+            const randomResponses = ["Maybe? 🤔", "Sort of... 🤷", "I'm not sure how to answer that!", "Hard to say..."];
+            return randomResponses[Math.floor(Math.random() * randomResponses.length)];
+        }
+
+        function makeGuess() {
+            if (gameOver) return;
+
+            const guess = prompt("Who do you think it is? Type the character name:");
+            if (!guess) return;
+
+            gameOver = true;
+
+            const resultArea = document.getElementById('resultArea');
+
+            // Check if the guess matches the character name
+            const guessLower = guess.toLowerCase().trim();
+            const nameLower = currentCharacter.name.toLowerCase();
+
+            // Split the character name into words for partial matching
+            const nameWords = nameLower.split(' ');
+
+            // Check for exact match or if guess contains significant parts of the name
+            let isCorrect = guessLower === nameLower;
+
+            // Check for aliases first
+            if (!isCorrect && currentCharacter.aliases) {
+                isCorrect = currentCharacter.aliases.some(alias => alias.toLowerCase() === guessLower);
+            }
+
+            // Also accept if the guess matches any significant word(s) from the name
+            // or if all words in the guess appear in the character name
+            if (!isCorrect) {
+                const guessWords = guessLower.split(' ').filter(w => w.length > 0);
+
+                // If they guessed a single word that's in the character name
+                if (guessWords.length === 1 && nameWords.includes(guessWords[0])) {
+                    isCorrect = true;
+                }
+                // If they guessed multiple words and all appear in the character name
+                else if (guessWords.length > 1 && guessWords.every(word => nameWords.includes(word))) {
+                    isCorrect = true;
+                }
+                // Also check if the character name contains the guess as a substring
+                else if (nameLower.includes(guessLower)) {
+                    isCorrect = true;
+                }
+            }
+
+            if (isCorrect) {
+                resultArea.innerHTML = `
+                    <div class="result win">
+                        🎉 CORRECT! 🎉
+                        <div class="character-name">${currentCharacter.name}</div>
+                        <div>You guessed it in ${questionsAsked} questions!</div>
+                        <div style="margin-top: 10px;">From: ${currentCharacter.game}</div>
+                    </div>
+                `;
+            } else {
+                resultArea.innerHTML = `
+                    <div class="result lose">
+                        ❌ Wrong! ❌
+                        <div>You guessed: ${guess}</div>
+                        <div class="character-name">It was ${currentCharacter.name}!</div>
+                        <div style="margin-top: 10px;">From: ${currentCharacter.game}</div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('askBtn').disabled = true;
+            document.getElementById('guessBtn').disabled = true;
+            document.getElementById('questionInput').disabled = true;
+        }
+
+        function newGame() {
+            document.getElementById('resultArea').innerHTML = '';
+            document.getElementById('askBtn').disabled = false;
+            document.getElementById('guessBtn').disabled = false;
+            document.getElementById('questionInput').disabled = false;
+            document.getElementById('gameHint').textContent = 'Ask me yes/no questions like "Is it from UG?" or "Does it have teeth?"';
+            startGame();
+        }
+
+        function updateUI() {
+            document.getElementById('questionsLeft').textContent = maxQuestions - questionsAsked;
+
+            const conversationDiv = document.getElementById('conversation');
+
+            if (conversation.length === 0) {
+                conversationDiv.innerHTML = '<div class="empty-state">No questions asked yet. Start guessing!</div>';
+            } else {
+                conversationDiv.innerHTML = conversation.map((qa, index) => {
+                    let answerClass = '';
+                    if (qa.answer.includes('Yes') || qa.answer.includes('✓')) answerClass = 'yes';
+                    else if (qa.answer.includes('No') || qa.answer.includes('✗')) answerClass = 'no';
+                    else answerClass = 'maybe';
+
+                    return `
+                        <div class="qa-item">
+                            <div class="question">Q${index + 1}: ${qa.question}</div>
+                            <div class="answer ${answerClass}">→ ${qa.answer}</div>
+                        </div>
+                    `;
+                }).reverse().join('');
+            }
+        }
+
+        // Start the game when page loads
+        startGame();
+    </script>
+</body>
+</html>
