@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Slice Beats - Beat Saber Clone</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Arial", sans-serif;
+                overflow: hidden;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            #gameCanvas {
+                border: 3px solid #fff;
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+                cursor: none;
+                background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%);
+            }
+
+            #ui {
+                position: absolute;
+                top: 50%;
+                left: 50px;
+                transform: translateY(-50%);
+                color: white;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+                z-index: 10;
+                pointer-events: none;
+                text-align: left;
+            }
+
+            #combo {
+                font-weight: bold;
+                font-size: 72px;
+                color: #00ffff;
+                text-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+                margin-bottom: 10px;
+            }
+
+            #score {
+                font-size: 28px;
+                color: #ffffff;
+                font-weight: normal;
+                opacity: 0.9;
+            }
+
+            #gameOver {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                padding: 40px 60px;
+                border-radius: 20px;
+                text-align: center;
+                color: white;
+                display: none;
+                z-index: 100;
+            }
+
+            #gameOver h1 {
+                font-size: 48px;
+                margin-bottom: 20px;
+                color: #ffd700;
+            }
+
+            #gameOver button {
+                margin-top: 20px;
+                padding: 15px 40px;
+                font-size: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            #gameOver button:hover {
+                transform: scale(1.1);
+            }
+
+            #startScreen {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                padding: 40px 60px;
+                border-radius: 20px;
+                text-align: center;
+                color: white;
+                z-index: 100;
+            }
+
+            #startScreen h1 {
+                font-size: 56px;
+                margin-bottom: 20px;
+                color: #ffd700;
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            }
+
+            #startScreen p {
+                font-size: 18px;
+                margin-bottom: 30px;
+                color: #ddd;
+            }
+
+            #startScreen button {
+                padding: 15px 40px;
+                font-size: 24px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: transform 0.2s;
+                margin: 10px;
+            }
+
+            #startScreen button:hover {
+                transform: scale(1.1);
+            }
+
+            #winScreen {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.95);
+                padding: 40px 60px;
+                border-radius: 20px;
+                text-align: center;
+                color: white;
+                display: none;
+                z-index: 100;
+                border: 3px solid #00ff00;
+                box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+            }
+
+            #winScreen h1 {
+                font-size: 56px;
+                margin-bottom: 20px;
+                color: #00ff00;
+                text-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+            }
+
+            #winScreen button {
+                margin-top: 20px;
+                padding: 15px 40px;
+                font-size: 20px;
+                background: linear-gradient(135deg, #00ff00 0%, #00aa00 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            #winScreen button:hover {
+                transform: scale(1.1);
+            }
+
+            #pauseBtn {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                padding: 10px 20px;
+                font-size: 18px;
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 2px solid rgba(255, 255, 255, 0.5);
+                border-radius: 8px;
+                cursor: pointer;
+                z-index: 50;
+                backdrop-filter: blur(5px);
+                transition: all 0.2s;
+                display: none;
+            }
+
+            #pauseBtn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(1.05);
+            }
+
+            #pauseScreen {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                padding: 40px 60px;
+                border-radius: 20px;
+                text-align: center;
+                color: white;
+                display: none;
+                z-index: 100;
+            }
+
+            #pauseScreen h1 {
+                font-size: 48px;
+                margin-bottom: 20px;
+                color: #00ffff;
+                text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            }
+
+            #pauseScreen button {
+                margin: 10px;
+                padding: 15px 40px;
+                font-size: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            #pauseScreen button:hover {
+                transform: scale(1.1);
+            }
+        </style>
+    </head>
+    <body>
+        <button id="pauseBtn">⏸ PAUSE</button>
+
+        <div id="ui">
+            <div id="combo">0x</div>
+            <div id="score">Score: 0</div>
+        </div>
+
+        <div id="startScreen">
+            <h1>🎵 SLICE BEATS 🎵</h1>
+            <p>Choose your song and start slicing!</p>
+            <div style="margin: 20px 0">
+                <h2
+                    style="font-size: 24px; margin-bottom: 15px; color: #00ffff"
+                >
+                    SELECT SONG:
+                </h2>
+                <button
+                    class="songBtn"
+                    data-song="Chocolate Party by Mine Chicken.mp3"
+                    data-difficulty="easy"
+                    style="
+                        display: block;
+                        width: 100%;
+                        margin: 10px auto;
+                        padding: 15px;
+                        font-size: 20px;
+                        background: linear-gradient(
+                            135deg,
+                            #00ff00 0%,
+                            #00aa00 100%
+                        );
+                        color: white;
+                        border: none;
+                        border-radius: 10px;
+                        cursor: pointer;
+                    "
+                >
+                    🍫 Choco Party
+                    <span style="font-size: 14px; opacity: 0.8">(EASY)</span>
+                </button>
+                <button
+                    class="songBtn"
+                    data-song="Dumb Song by Mine Chicken.mp3"
+                    data-difficulty="expert"
+                    style="
+                        display: block;
+                        width: 100%;
+                        margin: 10px auto;
+                        padding: 15px;
+                        font-size: 20px;
+                        background: linear-gradient(
+                            135deg,
+                            #ff0000 0%,
+                            #aa0000 100%
+                        );
+                        color: white;
+                        border: none;
+                        border-radius: 10px;
+                        cursor: pointer;
+                    "
+                >
+                    🔥 Dumb Song
+                    <span style="font-size: 14px; opacity: 0.8"
+                        >(EXPERT - IMPOSSIBLE!)</span
+                    >
+                </button>
+            </div>
+        </div>
+
+        <div id="gameOver">
+            <h1>GAME OVER!</h1>
+            <div id="finalScore"></div>
+            <div id="finalCombo"></div>
+            <button id="restartBtn">PLAY AGAIN</button>
+        </div>
+
+        <div id="winScreen">
+            <h1>🎉 YOU WIN! 🎉</h1>
+            <div id="winScore"></div>
+            <div id="winCombo"></div>
+            <button id="winRestartBtn">PLAY AGAIN</button>
+        </div>
+
+        <div id="pauseScreen">
+            <h1>⏸ PAUSED</h1>
+            <button id="resumeBtn">RESUME</button>
+            <button id="muteBtn">🔊 MUTE MUSIC</button>
+            <button id="quitBtn">QUIT TO MENU</button>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <script src="game.js"></script>
+    </body>
+</html>
