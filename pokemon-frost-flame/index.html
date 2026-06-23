@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Frost & Flame</title>
+    <!-- Pixel Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            image-rendering: pixelated;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: #1a1a2e;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 8px 8px;
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            max-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            flex-shrink: 0;
+        }
+
+        .title-pokemon {
+            color: #ffcc00;
+            text-shadow: 3px 3px 0 #0066cc, -2px -2px 0 #0066cc, 2px -2px 0 #0066cc, -2px 2px 0 #0066cc;
+        }
+
+        .title-frost {
+            color: #87ceeb;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .title-and {
+            color: #ffffff;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .title-flame {
+            color: #ff8c00;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 12px;
+            font-size: 0.5em;
+            flex-shrink: 0;
+        }
+
+        /* Starter Selection */
+        .starter-select {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .starter-select h2 {
+            margin-bottom: 30px;
+            font-size: 1em;
+            text-shadow: 2px 2px 0 #333;
+        }
+
+        .starters {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .starter-card {
+            background: #2a2a4a;
+            border-radius: 0;
+            padding: 20px;
+            width: 200px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            border: 4px solid #444;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .starter-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+
+        .starter-card.fire { border-color: #ff6b6b; }
+        .starter-card.water { border-color: #00d4ff; }
+        .starter-card.grass { border-color: #4ade80; }
+
+        .starter-card.fire:hover { background: #3a2020; }
+        .starter-card.water:hover { background: #202a3a; }
+        .starter-card.grass:hover { background: #203a20; }
+
+        .starter-sprite {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            image-rendering: pixelated;
+        }
+
+        .starter-sprite svg {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .starter-card.fire .starter-sprite { background: linear-gradient(135deg, #ff6b6b, #ff8e53); }
+        .starter-card.water .starter-sprite { background: linear-gradient(135deg, #00d4ff, #0099cc); }
+        .starter-card.grass .starter-sprite { background: linear-gradient(135deg, #4ade80, #22c55e); }
+
+        .starter-name {
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .starter-type {
+            color: #aaa;
+            font-size: 0.5em;
+            margin-bottom: 10px;
+        }
+
+        .starter-desc {
+            font-size: 0.45em;
+            color: #ccc;
+            line-height: 1.8;
+        }
+
+        /* Battle Screen */
+        .battle-screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .battle-screen.active {
+            display: flex;
+        }
+
+        .battle-field {
+            background: #228B22;
+            background-image:
+                linear-gradient(180deg, #87CEEB 0%, #87CEEB 30%, #90EE90 50%, #228B22 100%);
+            border: 4px solid #444;
+            box-shadow: 4px 4px 0 #000;
+            padding: 30px;
+            margin-bottom: 16px;
+            position: relative;
+            flex: 1;
+            min-height: 300px;
+        }
+
+        .pokemon-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .pokemon-box {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pokemon-box.player {
+            bottom: 20px;
+            left: 40px;
+        }
+
+        .pokemon-box.player .pokemon-sprite {
+            transform: scaleX(-1);
+        }
+
+        .pokemon-box.enemy {
+            top: 20px;
+            right: 40px;
+        }
+
+        .pokemon-sprite {
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+        }
+
+        .pokemon-sprite svg {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .pokemon-info {
+            background: #222;
+            padding: 12px 16px;
+            border: 3px solid #555;
+            box-shadow: 3px 3px 0 #000;
+            min-width: 160px;
+            text-align: left;
+        }
+
+        .pokemon-name {
+            font-weight: bold;
+            font-size: 0.7em;
+            margin-bottom: 4px;
+        }
+
+        .pokemon-level {
+            font-size: 0.5em;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .hp-bar-container {
+            background: #333;
+            border: 2px solid #555;
+            height: 16px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .hp-bar {
+            height: 100%;
+            background: #4ade80;
+            transition: width 0.3s steps(10);
+        }
+
+        .hp-bar.low { background: #fbbf24; }
+        .hp-bar.critical { background: #ef4444; }
+
+        .hp-text {
+            font-size: 0.5em;
+            color: #ccc;
+        }
+
+        /* Battle UI */
+        .battle-ui {
+            background: #1a1a2e;
+            border: 4px solid #444;
+            box-shadow: 4px 4px 0 #000;
+            padding: 16px;
+            flex-shrink: 0;
+        }
+
+        .message-box {
+            background: #222;
+            border: 3px solid #555;
+            padding: 16px;
+            margin-bottom: 16px;
+            min-height: 50px;
+            font-size: 0.6em;
+            line-height: 1.8;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            font-size: 0.7em;
+            font-family: 'Press Start 2P', cursive;
+            font-weight: bold;
+            border: 4px solid;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #000;
+        }
+
+        .action-btn:active:not(:disabled) {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .action-btn.fight {
+            background: #ef4444;
+            border-color: #b91c1c;
+            color: white;
+        }
+        .action-btn.fight:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        .moves-panel {
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .move-btn {
+            padding: 16px 12px;
+            border: 4px solid;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s ease;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            box-shadow: 3px 3px 0 #000;
+            font-size: 0.75em;
+        }
+
+        .move-btn:hover:not(:disabled) {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #000;
+        }
+
+        .move-btn:active:not(:disabled) {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .move-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .move-btn.fire { background: #ff6b6b; border-color: #cc4444; }
+        .move-btn.water { background: #00a8cc; border-color: #007799; }
+        .move-btn.grass { background: #4ade80; border-color: #22aa55; }
+        .move-btn.normal { background: #888888; border-color: #666666; }
+
+        .back-btn {
+            grid-column: span 2;
+            padding: 14px;
+            background: #444;
+            color: white;
+            border: 4px solid #333;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-family: 'Press Start 2P', cursive;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .back-btn:hover {
+            background: #555;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #000;
+        }
+
+        /* Game Over */
+        .game-over {
+            display: none;
+            text-align: center;
+            padding: 50px;
+            background: #1a1a2e;
+            border: 4px solid #444;
+            box-shadow: 4px 4px 0 #000;
+            flex: 1;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-over.active {
+            display: flex;
+        }
+
+        .game-over h2 {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #000;
+        }
+
+        .game-over p {
+            font-size: 0.6em;
+            margin-bottom: 10px;
+        }
+
+        .game-over.win h2 { color: #4ade80; }
+        .game-over.lose h2 { color: #ef4444; }
+
+        .play-again-btn {
+            padding: 16px 32px;
+            font-size: 0.7em;
+            font-family: 'Press Start 2P', cursive;
+            background: #667eea;
+            color: white;
+            border: 4px solid #4a5fcc;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .play-again-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+
+        .play-again-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-40px); }
+        }
+
+        .shake {
+            animation: shake 0.2s steps(4);
+        }
+
+        .flash {
+            animation: flash 0.15s steps(2) 3;
+        }
+
+        /* Type effectiveness popup */
+        .effectiveness {
+            position: absolute;
+            font-weight: bold;
+            font-size: 0.6em;
+            animation: floatUp 1s steps(8) forwards;
+            pointer-events: none;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .effectiveness.super { color: #4ade80; }
+        .effectiveness.not-very { color: #fbbf24; }
+
+        /* Confirmation Screen */
+        .confirm-screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirm-screen.active {
+            display: flex;
+        }
+
+        .confirm-box {
+            background: #2a2a4a;
+            border: 4px solid #444;
+            box-shadow: 4px 4px 0 #000;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .confirm-sprite {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            image-rendering: pixelated;
+        }
+
+        .confirm-sprite svg {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .confirm-text {
+            font-size: 0.7em;
+            line-height: 2;
+            margin-bottom: 30px;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 16px 40px;
+            font-size: 0.8em;
+            font-family: 'Press Start 2P', cursive;
+            border: 4px solid;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .confirm-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #000;
+        }
+
+        .confirm-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .confirm-btn.yes {
+            background: #4ade80;
+            border-color: #22aa55;
+            color: #000;
+        }
+
+        .confirm-btn.no {
+            background: #ef4444;
+            border-color: #cc2222;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <script src="sprites.js"></script>
+    <div class="game-container">
+        <h1><span class="title-pokemon">Pokémon</span> <span class="title-frost">Frost</span> <span class="title-and">&</span> <span class="title-flame">Flame</span></h1>
+        <p class="subtitle">Choose your starter and battle!</p>
+
+        <!-- Starter Selection -->
+        <div class="starter-select" id="starterSelect">
+            <h2>Choose Your Starter!</h2>
+            <div class="starters">
+                <div class="starter-card fire" onclick="selectStarter('ignewt')">
+                    <div class="starter-sprite" id="sprite-ignewt"></div>
+                    <div class="starter-name">Ignewt</div>
+                    <div class="starter-type">Fire Type</div>
+                    <div class="starter-desc">A small fiery newt with a flame-tipped tail. Its body runs so hot it leaves warm footprints.</div>
+                </div>
+                <div class="starter-card water" onclick="selectStarter('ottide')">
+                    <div class="starter-sprite" id="sprite-ottide"></div>
+                    <div class="starter-name">Ottide</div>
+                    <div class="starter-type">Water Type</div>
+                    <div class="starter-desc">A playful otter pup with wavy fur patterns. It senses water currents through its whiskers.</div>
+                </div>
+                <div class="starter-card grass" onclick="selectStarter('petalope')">
+                    <div class="starter-sprite" id="sprite-petalope"></div>
+                    <div class="starter-name">Petalope</div>
+                    <div class="starter-type">Grass Type</div>
+                    <div class="starter-desc">A gentle fawn with flower petals on its back. It grazes in meadows at dawn.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Starter Confirmation -->
+        <div class="confirm-screen" id="confirmScreen">
+            <div class="confirm-box">
+                <div class="confirm-sprite" id="confirmSprite"></div>
+                <p class="confirm-text" id="confirmText">So you would like to go with the Fire type Pokemon, Ignewt?</p>
+                <div class="confirm-buttons">
+                    <button class="confirm-btn yes" onclick="confirmStarter(true)">Yes</button>
+                    <button class="confirm-btn no" onclick="confirmStarter(false)">No</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Battle Screen -->
+        <div class="battle-screen" id="battleScreen">
+            <div class="battle-field" id="battleField">
+                <div class="pokemon-container">
+                    <div class="pokemon-box player">
+                        <div class="pokemon-sprite" id="playerSprite">🦎</div>
+                        <div class="pokemon-info">
+                            <div class="pokemon-name" id="playerName">Ignewt</div>
+                            <div class="pokemon-level" id="playerLevel">Lv. 5</div>
+                            <div class="hp-bar-container">
+                                <div class="hp-bar" id="playerHpBar"></div>
+                            </div>
+                            <div class="hp-text" id="playerHpText">100 / 100</div>
+                        </div>
+                    </div>
+                    <div class="pokemon-box enemy">
+                        <div class="pokemon-sprite" id="enemySprite">🦦</div>
+                        <div class="pokemon-info">
+                            <div class="pokemon-name" id="enemyName">Ottide</div>
+                            <div class="pokemon-level" id="enemyLevel">Lv. 5</div>
+                            <div class="hp-bar-container">
+                                <div class="hp-bar" id="enemyHpBar"></div>
+                            </div>
+                            <div class="hp-text" id="enemyHpText">100 / 100</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="battle-ui">
+                <div class="message-box" id="messageBox">What will you do?</div>
+                <div class="action-buttons" id="actionButtons">
+                    <button class="action-btn fight" onclick="showMoves()">FIGHT</button>
+                </div>
+                <div class="moves-panel" id="movesPanel"></div>
+            </div>
+        </div>
+
+        <!-- Game Over -->
+        <div class="game-over" id="gameOver">
+            <h2 id="gameOverText">You Win!</h2>
+            <p id="gameOverDesc"></p>
+            <button class="play-again-btn" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Pokemon Data
+        const pokemonData = {
+            // Fire line
+            ignewt: {
+                name: 'Ignewt',
+                type: 'fire',
+                baseHp: 22,
+                baseAtk: 12,
+                baseDef: 10,
+                baseSpd: 14,
+                moves: ['Tackle', 'Growl', 'Ember'],
+                evolvesTo: 'searamander',
+                evolveLevel: 16
+            },
+            searamander: {
+                name: 'Searamander',
+                type: 'fire',
+                baseHp: 40,
+                baseAtk: 22,
+                baseDef: 18,
+                baseSpd: 24,
+                moves: ['Tackle', 'Growl', 'Flamethrower', 'Slash'],
+                evolvesTo: 'infernosaur',
+                evolveLevel: 36
+            },
+            infernosaur: {
+                name: 'Infernosaur',
+                type: 'fire',
+                baseHp: 70,
+                baseAtk: 38,
+                baseDef: 32,
+                baseSpd: 40,
+                moves: ['Fire Blast', 'Dragon Claw', 'Inferno', 'Eruption']
+            },
+            // Water line
+            ottide: {
+                name: 'Ottide',
+                type: 'water',
+                baseHp: 24,
+                baseAtk: 11,
+                baseDef: 11,
+                baseSpd: 12,
+                moves: ['Tackle', 'Growl', 'Water Gun'],
+                evolvesTo: 'riptail',
+                evolveLevel: 16
+            },
+            riptail: {
+                name: 'Riptail',
+                type: 'water',
+                baseHp: 44,
+                baseAtk: 20,
+                baseDef: 20,
+                baseSpd: 22,
+                moves: ['Tackle', 'Growl', 'Water Pulse', 'Aqua Jet'],
+                evolvesTo: 'maelstrix',
+                evolveLevel: 36
+            },
+            maelstrix: {
+                name: 'Maelstrix',
+                type: 'water',
+                baseHp: 75,
+                baseAtk: 35,
+                baseDef: 35,
+                baseSpd: 38,
+                moves: ['Hydro Cannon', 'Aqua Tail', 'Tsunami', 'Ice Beam']
+            },
+            // Grass line
+            petalope: {
+                name: 'Petalope',
+                type: 'grass',
+                baseHp: 23,
+                baseAtk: 10,
+                baseDef: 12,
+                baseSpd: 11,
+                moves: ['Tackle', 'Growl', 'Vine Whip'],
+                evolvesTo: 'verdoe',
+                evolveLevel: 16
+            },
+            verdoe: {
+                name: 'Verdoe',
+                type: 'grass',
+                baseHp: 42,
+                baseAtk: 18,
+                baseDef: 22,
+                baseSpd: 20,
+                moves: ['Tackle', 'Growl', 'Razor Leaf', 'Synthesis'],
+                evolvesTo: 'sylvantler',
+                evolveLevel: 36
+            },
+            sylvantler: {
+                name: 'Sylvantler',
+                type: 'grass',
+                baseHp: 72,
+                baseAtk: 32,
+                baseDef: 38,
+                baseSpd: 36,
+                moves: ['Frenzy Plant', 'Wood Hammer', 'Leaf Storm', 'Horn Leech']
+            }
+        };
+
+        // Move Data
+        const moveData = {
+            // Fire moves
+            'Ember': { type: 'fire', power: 40, accuracy: 100 },
+            'Flame Burst': { type: 'fire', power: 70, accuracy: 100 },
+            'Flamethrower': { type: 'fire', power: 90, accuracy: 100 },
+            'Fire Fang': { type: 'fire', power: 65, accuracy: 95 },
+            'Inferno': { type: 'fire', power: 100, accuracy: 85 },
+            'Fire Blast': { type: 'fire', power: 110, accuracy: 85 },
+            'Eruption': { type: 'fire', power: 150, accuracy: 100 },
+            // Water moves
+            'Water Gun': { type: 'water', power: 40, accuracy: 100 },
+            'Bubble Beam': { type: 'water', power: 65, accuracy: 100 },
+            'Aqua Jet': { type: 'water', power: 40, accuracy: 100, priority: true },
+            'Water Pulse': { type: 'water', power: 60, accuracy: 100 },
+            'Hydro Pump': { type: 'water', power: 110, accuracy: 80 },
+            'Hydro Cannon': { type: 'water', power: 150, accuracy: 90 },
+            'Aqua Tail': { type: 'water', power: 90, accuracy: 90 },
+            'Tsunami': { type: 'water', power: 120, accuracy: 85 },
+            'Ice Beam': { type: 'water', power: 90, accuracy: 100 },
+            // Grass moves
+            'Vine Whip': { type: 'grass', power: 45, accuracy: 100 },
+            'Razor Leaf': { type: 'grass', power: 55, accuracy: 95 },
+            'Leaf Blade': { type: 'grass', power: 90, accuracy: 100 },
+            'Synthesis': { type: 'grass', power: 0, accuracy: 100, heal: true },
+            'Solar Beam': { type: 'grass', power: 120, accuracy: 100 },
+            'Frenzy Plant': { type: 'grass', power: 150, accuracy: 90 },
+            'Wood Hammer': { type: 'grass', power: 120, accuracy: 100 },
+            'Leaf Storm': { type: 'grass', power: 130, accuracy: 90 },
+            'Horn Leech': { type: 'grass', power: 75, accuracy: 100, drain: true },
+            // Normal moves
+            'Scratch': { type: 'normal', power: 40, accuracy: 100 },
+            'Tackle': { type: 'normal', power: 40, accuracy: 100 },
+            'Slash': { type: 'normal', power: 70, accuracy: 100 },
+            'Stomp': { type: 'normal', power: 65, accuracy: 100 },
+            'Dragon Claw': { type: 'normal', power: 80, accuracy: 100 },
+            'Leer': { type: 'normal', power: 0, accuracy: 100, debuff: true },
+            'Tail Whip': { type: 'normal', power: 0, accuracy: 100, debuff: true },
+            'Growl': { type: 'normal', power: 0, accuracy: 100, debuff: true }
+        };
+
+        // Type effectiveness
+        const typeChart = {
+            fire: { fire: 0.5, water: 0.5, grass: 2 },
+            water: { fire: 2, water: 0.5, grass: 0.5 },
+            grass: { fire: 0.5, water: 2, grass: 0.5 },
+            normal: { fire: 1, water: 1, grass: 1 }
+        };
+
+        // Game state
+        let playerPokemon = null;
+        let enemyPokemon = null;
+        let playerHp = 0;
+        let enemyHp = 0;
+        let playerMaxHp = 0;
+        let enemyMaxHp = 0;
+        let isPlayerTurn = true;
+        let battleOver = false;
+        let pendingStarter = null;
+
+        function selectStarter(starter) {
+            pendingStarter = starter;
+            const data = pokemonData[starter];
+
+            // Show confirmation screen
+            document.getElementById('starterSelect').style.display = 'none';
+            document.getElementById('confirmScreen').classList.add('active');
+            document.getElementById('confirmSprite').innerHTML = getSprite(starter);
+
+            const typeName = data.type.charAt(0).toUpperCase() + data.type.slice(1);
+            document.getElementById('confirmText').textContent =
+                `So you would like to go with the ${typeName} type Pokemon, ${data.name}?`;
+        }
+
+        function confirmStarter(yes) {
+            document.getElementById('confirmScreen').classList.remove('active');
+
+            if (!yes) {
+                // Go back to starter selection
+                document.getElementById('starterSelect').style.display = 'flex';
+                pendingStarter = null;
+                return;
+            }
+
+            // Start the battle
+            const starter = pendingStarter;
+            const data = pokemonData[starter];
+            playerPokemon = { ...data, id: starter };
+
+            // Pick an enemy you're STRONG against (Fire beats Grass, Water beats Fire, Grass beats Water)
+            const advantageMap = {
+                fire: 'petalope',    // Fire beats Grass
+                water: 'ignewt',     // Water beats Fire
+                grass: 'ottide'      // Grass beats Water
+            };
+            const enemyStarter = advantageMap[data.type];
+            const enemyData = pokemonData[enemyStarter];
+            enemyPokemon = { ...enemyData, id: enemyStarter };
+
+            // HP is just the baseHp for starters (around 20-25)
+            playerMaxHp = data.baseHp;
+            playerHp = playerMaxHp;
+            enemyMaxHp = enemyData.baseHp;
+            enemyHp = enemyMaxHp;
+
+            // Update UI
+            document.getElementById('battleScreen').classList.add('active');
+
+            updateBattleUI();
+            showMessage(`A wild ${enemyPokemon.name} appeared!`);
+
+            pendingStarter = null;
+        }
+
+        function updateBattleUI() {
+            // Player
+            document.getElementById('playerSprite').innerHTML = getSprite(playerPokemon.id);
+            document.getElementById('playerName').textContent = playerPokemon.name;
+            document.getElementById('playerHpBar').style.width = (playerHp / playerMaxHp * 100) + '%';
+            document.getElementById('playerHpText').textContent = `${Math.max(0, Math.floor(playerHp))} / ${playerMaxHp}`;
+            updateHpBarColor('playerHpBar', playerHp / playerMaxHp);
+
+            // Enemy
+            document.getElementById('enemySprite').innerHTML = getSprite(enemyPokemon.id);
+            document.getElementById('enemyName').textContent = enemyPokemon.name;
+            document.getElementById('enemyHpBar').style.width = (enemyHp / enemyMaxHp * 100) + '%';
+            document.getElementById('enemyHpText').textContent = `${Math.max(0, Math.floor(enemyHp))} / ${enemyMaxHp}`;
+            updateHpBarColor('enemyHpBar', enemyHp / enemyMaxHp);
+        }
+
+        function updateHpBarColor(barId, percent) {
+            const bar = document.getElementById(barId);
+            bar.classList.remove('low', 'critical');
+            if (percent <= 0.2) {
+                bar.classList.add('critical');
+            } else if (percent <= 0.5) {
+                bar.classList.add('low');
+            }
+        }
+
+        function showMessage(msg) {
+            document.getElementById('messageBox').textContent = msg;
+        }
+
+        function showMoves() {
+            document.getElementById('actionButtons').style.display = 'none';
+            const movesPanel = document.getElementById('movesPanel');
+            movesPanel.style.display = 'grid';
+            movesPanel.innerHTML = '';
+
+            playerPokemon.moves.forEach(moveName => {
+                const move = moveData[moveName];
+                const btn = document.createElement('button');
+                btn.className = 'move-btn ' + move.type;
+                btn.textContent = moveName;
+                btn.onclick = () => useMove(moveName);
+                movesPanel.appendChild(btn);
+            });
+
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-btn';
+            backBtn.textContent = 'Back';
+            backBtn.onclick = hideMoves;
+            movesPanel.appendChild(backBtn);
+        }
+
+        function hideMoves() {
+            document.getElementById('movesPanel').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'grid';
+        }
+
+        async function useMove(moveName) {
+            if (battleOver) return;
+
+            const move = moveData[moveName];
+            document.getElementById('movesPanel').style.display = 'none';
+
+            // Player attacks
+            await executeMove(playerPokemon, enemyPokemon, moveName, 'enemy');
+
+            if (battleOver) return;
+
+            // Enemy attacks
+            await delay(1000);
+            const enemyMove = enemyPokemon.moves[Math.floor(Math.random() * enemyPokemon.moves.length)];
+            await executeMove(enemyPokemon, playerPokemon, enemyMove, 'player');
+
+            if (!battleOver) {
+                showMessage('What will you do?');
+                document.getElementById('actionButtons').style.display = 'grid';
+            }
+        }
+
+        async function executeMove(attacker, defender, moveName, targetId) {
+            const move = moveData[moveName];
+
+            showMessage(`${attacker.name} used ${moveName}!`);
+            await delay(1000);
+
+            // Accuracy check
+            if (Math.random() * 100 > move.accuracy) {
+                showMessage(`${attacker.name}'s attack missed!`);
+                return;
+            }
+
+            // Status moves
+            if (move.power === 0) {
+                if (move.heal) {
+                    const healAmount = attacker === playerPokemon ? playerMaxHp * 0.5 : enemyMaxHp * 0.5;
+                    if (attacker === playerPokemon) {
+                        playerHp = Math.min(playerMaxHp, playerHp + healAmount);
+                    } else {
+                        enemyHp = Math.min(enemyMaxHp, enemyHp + healAmount);
+                    }
+                    showMessage(`${attacker.name} restored HP!`);
+                } else if (move.debuff) {
+                    showMessage(`${defender.name}'s defense fell!`);
+                }
+                updateBattleUI();
+                return;
+            }
+
+            // Calculate damage (simplified for early game)
+            let effectiveness = typeChart[move.type]?.[defender.type] || 1;
+            // STAB bonus (Same Type Attack Bonus) - 1.5x if move type matches Pokemon type
+            let stab = (move.type === attacker.type) ? 1.5 : 1;
+            let baseDamage = Math.floor((move.power / 10) * (attacker.baseAtk / defender.baseDef) * stab * effectiveness);
+            let damage = Math.max(1, baseDamage + Math.floor(Math.random() * 3));
+
+            // Show effectiveness
+            if (effectiveness > 1) {
+                showEffectiveness(targetId, "It's super effective!", 'super');
+            } else if (effectiveness < 1) {
+                showEffectiveness(targetId, "It's not very effective...", 'not-very');
+            }
+
+            // Apply damage
+            if (targetId === 'enemy') {
+                enemyHp -= damage;
+                document.getElementById('enemySprite').classList.add('shake');
+                setTimeout(() => document.getElementById('enemySprite').classList.remove('shake'), 300);
+            } else {
+                playerHp -= damage;
+                document.getElementById('playerSprite').classList.add('shake');
+                setTimeout(() => document.getElementById('playerSprite').classList.remove('shake'), 300);
+            }
+
+            // Drain moves
+            if (move.drain) {
+                const healAmount = damage * 0.5;
+                if (attacker === playerPokemon) {
+                    playerHp = Math.min(playerMaxHp, playerHp + healAmount);
+                } else {
+                    enemyHp = Math.min(enemyMaxHp, enemyHp + healAmount);
+                }
+            }
+
+            updateBattleUI();
+
+            // Check for faint
+            await delay(500);
+            if (enemyHp <= 0) {
+                battleOver = true;
+                showMessage(`${enemyPokemon.name} fainted!`);
+                await delay(1500);
+                showGameOver(true);
+            } else if (playerHp <= 0) {
+                battleOver = true;
+                showMessage(`${playerPokemon.name} fainted!`);
+                await delay(1500);
+                showGameOver(false);
+            }
+        }
+
+        function showEffectiveness(targetId, text, type) {
+            const field = document.getElementById('battleField');
+            const popup = document.createElement('div');
+            popup.className = 'effectiveness ' + type;
+            popup.textContent = text;
+            popup.style.left = targetId === 'enemy' ? '70%' : '30%';
+            popup.style.top = '50%';
+            field.appendChild(popup);
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        function showGameOver(won) {
+            document.getElementById('battleScreen').classList.remove('active');
+            const gameOver = document.getElementById('gameOver');
+            gameOver.classList.add('active');
+            gameOver.className = 'game-over active ' + (won ? 'win' : 'lose');
+            document.getElementById('gameOverText').textContent = won ? 'You Win!' : 'You Lose!';
+            document.getElementById('gameOverDesc').textContent = won
+                ? `${playerPokemon.name} defeated ${enemyPokemon.name}!`
+                : `${enemyPokemon.name} defeated ${playerPokemon.name}...`;
+        }
+
+        function resetGame() {
+            document.getElementById('gameOver').classList.remove('active');
+            document.getElementById('starterSelect').style.display = 'flex';
+            playerPokemon = null;
+            enemyPokemon = null;
+            battleOver = false;
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize starter sprites on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('sprite-ignewt').innerHTML = getSprite('ignewt');
+            document.getElementById('sprite-ottide').innerHTML = getSprite('ottide');
+            document.getElementById('sprite-petalope').innerHTML = getSprite('petalope');
+        });
+    </script>
+</body>
+</html>
