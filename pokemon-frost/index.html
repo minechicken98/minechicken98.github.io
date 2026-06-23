@@ -3514,9 +3514,7 @@
                     member.pokemon.baseHp * (1 + (member.level - 5) * 0.1),
                 );
                 member.hp = member.maxHp;
-                member.expToNext = Math.floor(
-                    100 * Math.pow(1.2, member.level - 5),
-                );
+                member.expToNext = 5;
 
                 // Update current pokemon if it's the starter
                 if (currentPartyIndex === 0) {
