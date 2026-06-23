@@ -68,6 +68,67 @@
                 color: #667eea;
                 font-size: 0.9em;
             }
+
+            /* Lock section styles */
+            .lock-section {
+                background: #333;
+                padding: 30px;
+                border-radius: 10px;
+                text-align: center;
+                margin-top: 40px;
+            }
+            .lock-section h2 {
+                color: #fff;
+                margin-bottom: 15px;
+            }
+            .lock-section p {
+                color: #aaa;
+                margin-bottom: 20px;
+            }
+            .lock-input {
+                padding: 12px 20px;
+                font-size: 16px;
+                border: 2px solid #555;
+                border-radius: 8px;
+                background: #222;
+                color: #fff;
+                margin-right: 10px;
+            }
+            .lock-input:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+            .lock-btn {
+                padding: 12px 25px;
+                font-size: 16px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+            .lock-btn:hover {
+                background: #5a6fd6;
+            }
+            .lock-error {
+                color: #ff6b6b;
+                margin-top: 15px;
+                display: none;
+            }
+            .doggo-section {
+                display: none;
+                margin-top: 40px;
+            }
+            .doggo-section.unlocked {
+                display: block;
+            }
+            .doggo-projects {
+                display: grid;
+                gap: 20px;
+                background: #4a9eff;
+                padding: 20px;
+                border-radius: 10px;
+            }
         </style>
     </head>
     <body>
@@ -259,8 +320,38 @@
                     <span class="project-link">View Project →</span>
                 </a>
 
+                <a href="/pokemon-frost/" class="project-card">
+                    <h2 class="project-title">Pokémon Frost</h2>
+                    <p class="project-description">
+                        A Pokémon-style battle simulator! Choose your starter - Ignewt, Ottide, or Petalope - and battle with turn-based combat, type matchups, and evolutions. Features original Pokémon with full evolution lines!
+                    </p>
+                    <span class="project-link">View Project →</span>
+                </a>
 
+                <a href="/pokemon-flame/" class="project-card">
+                    <h2 class="project-title">Pokémon Flame</h2>
+                    <p class="project-description">
+                        A Pokémon-style battle simulator! Choose your starter - Ignewt, Ottide, or Petalope - and battle with turn-based combat, type matchups, and evolutions. Features original Pokémon with full evolution lines!
+                    </p>
+                    <span class="project-link">View Project →</span>
+                </a>
+            </div>
 
+            <!-- Lock Section -->
+            <div class="lock-section" id="lockSection">
+                <h2>🔒 DoggoDGCodes' Projects</h2>
+                <p>Enter the password to view DoggoDGCodes' projects</p>
+                <input type="password" class="lock-input" id="lockPassword" placeholder="Enter password...">
+                <button class="lock-btn" onclick="tryUnlock()">Unlock</button>
+                <p class="lock-error" id="lockError">Wrong password! Try again.</p>
+            </div>
+
+            <!-- DoggoDGCodes' Section (hidden until unlocked) -->
+            <div class="doggo-section" id="doggoSection">
+                <h2 style="color: #333; margin-bottom: 20px;">DoggoDGCodes' Projects</h2>
+                <div class="doggo-projects" id="doggoProjects">
+                    <!-- His projects will load here -->
+                </div>
             </div>
         </div>
         <footer>
@@ -294,9 +385,43 @@
                 </a>
             </p>
         </footer>
-        <script
-            src="https://cdn.jsdelivr.net/gh/doggodgcodes/mine-chicken-dg-linker@main/linker.js"
-            async
-        ></script>
+        <script>
+            function tryUnlock() {
+                const password = document.getElementById('lockPassword').value;
+                const lockError = document.getElementById('lockError');
+
+                if (password === 'doggo12321') {
+                    // Hide lock section
+                    document.getElementById('lockSection').style.display = 'none';
+                    // Show doggo section
+                    document.getElementById('doggoSection').classList.add('unlocked');
+                    // Load DoggoDGCodes' linker script
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/gh/doggodgcodes/mine-chicken-dg-linker@main/linker.js';
+                    document.body.appendChild(script);
+                    // Save to localStorage so it stays unlocked
+                    localStorage.setItem('doggoUnlocked', 'true');
+                } else {
+                    lockError.style.display = 'block';
+                    document.getElementById('lockPassword').value = '';
+                }
+            }
+
+            // Check if already unlocked
+            if (localStorage.getItem('doggoUnlocked') === 'true') {
+                document.getElementById('lockSection').style.display = 'none';
+                document.getElementById('doggoSection').classList.add('unlocked');
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/gh/doggodgcodes/mine-chicken-dg-linker@main/linker.js';
+                document.body.appendChild(script);
+            }
+
+            // Allow pressing Enter to submit
+            document.getElementById('lockPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    tryUnlock();
+                }
+            });
+        </script>
     </body>
 </html>
