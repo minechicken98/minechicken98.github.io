@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Poker - Rulebook</title>
+<style>
+  @page { size: letter; margin: 0; }
+  @media print {
+    html, body { margin: 0; padding: 0; }
+    .sheet { width: 100% !important; min-height: auto !important; padding: 0.3in !important; page-break-after: always; }
+    .sheet:last-child { page-break-after: avoid !important; }
+    .block { break-inside: avoid !important; -webkit-column-break-inside: avoid !important; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a1a;
+    --muted: #5b5b5b;
+    --line: #d9d4c8;
+    --accent: #b3261e;
+    --accent-soft: #f4dcda;
+    --gold: #c8961a;
+    --paper: #fbfaf6;
+    --panel: #ffffff;
+  }
+
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #1a1a1a;
+    background: #fbfaf6;
+    font-size: 9.4px;
+    line-height: 1.42;
+  }
+
+  .sheet {
+    width: 8.5in;
+    min-height: 10in;
+    padding: 0.5in 0.55in;
+    page-break-after: always;
+    page-break-inside: avoid;
+    position: relative;
+  }
+  .sheet:last-child { page-break-after: avoid; }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 3px solid #b3261e;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  .ball {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(180deg, #b3261e 0 50%, #ffffff 50% 100%);
+    border: 2px solid #1a1a1a;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .ball::before {
+    content: ""; position: absolute; top: 50%; left: 0; right: 0;
+    height: 2px; margin-top: -1px;
+    background: #1a1a1a;
+  }
+  .ball::after {
+    content: ""; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px; height: 14px;
+    background: #fff; border: 2px solid #1a1a1a; border-radius: 50%;
+  }
+  .title-block h1 {
+    font-size: 33px; letter-spacing: 2px; font-weight: 800;
+    line-height: 1; text-transform: uppercase;
+  }
+  .title-block .sub {
+    font-size: 9.5px; color: #5b5b5b; letter-spacing: 3px;
+    text-transform: uppercase; margin-top: 4px;
+  }
+  .title-block .by { font-size: 8.5px; color: #5b5b5b; margin-top: 2px; letter-spacing: 1px;}
+
+  /* ---------- Layout ---------- */
+  .cols { display: table; width: 100%; table-layout: fixed; }
+  .col-left, .col-right { display: table-cell; width: 50%; vertical-align: top; }
+  .col-left { padding-right: 12px; }
+  .col-right { padding-left: 12px; }
+  .block { margin-bottom: 11px; }
+
+  h2 {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.4px;
+    color: #b3261e; font-weight: 800;
+    border-bottom: 1px solid #d9d4c8; padding-bottom: 2px; margin-bottom: 5px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  h2 .n {
+    background: #b3261e; color: #fff; font-size: 8px; font-weight: 700;
+    width: 14px; height: 14px; border-radius: 3px; display: inline-flex;
+    align-items: center; justify-content: center; flex: 0 0 auto;
+  }
+  p { margin-bottom: 4px; }
+  ul { list-style: none; }
+  li { padding-left: 11px; position: relative; margin-bottom: 2px; }
+  li::before {
+    content: ""; position: absolute; left: 0; top: 5px;
+    width: 4px; height: 4px; border-radius: 50%; background: #b3261e;
+  }
+  .tight li { margin-bottom: 1px; }
+  strong { font-weight: 700; }
+  .muted { color: #5b5b5b; }
+
+  /* ---------- Value / score tables ---------- */
+  table { width: 100%; border-collapse: collapse; margin-top: 2px; }
+  td { padding: 1.5px 0; vertical-align: top; }
+  td.r { text-align: right; font-weight: 700; white-space: nowrap; }
+  .scoretable td { border-bottom: 1px dotted #d9d4c8; }
+  .scoretable tr:last-child td { border-bottom: none; }
+
+  .pill {
+    display: inline-block; background: #f4dcda; color: #b3261e;
+    font-weight: 700; padding: 0 5px; border-radius: 3px; font-size: 8.5px;
+  }
+
+  .callout {
+    background: #ffffff; border: 1px solid #d9d4c8;
+    border-left: 3px solid #c8961a;
+    padding: 6px 8px; border-radius: 4px; margin-top: 2px;
+  }
+  .callout .lead { font-weight: 800; color: #c8961a; text-transform: uppercase; letter-spacing: 0.5px; font-size: 8.5px; }
+
+  .perfect {
+    background: #b3261e; color: #fff; border-radius: 4px;
+    padding: 6px 8px; margin-top: 4px;
+  }
+  .perfect b { letter-spacing: 0.5px; }
+
+  .footer {
+    margin-top: 15px;
+    border-top: 1px solid #d9d4c8; padding-top: 5px;
+    font-size: 7.6px; color: #5b5b5b; display: flex; justify-content: space-between;
+    letter-spacing: 0.5px;
+  }
+
+  /* ---------- Full rulebook page ---------- */
+  .doc h2 { margin-top: 4px; }
+  .doc .block { margin-bottom: 9px; }
+  .doc-intro {
+    font-size: 9.6px; color: #5b5b5b; margin-bottom: 12px;
+    border-left: 3px solid #d9d4c8; padding-left: 9px;
+  }
+  .seq { counter-reset: step; }
+  .step { padding-left: 16px; position: relative; margin-bottom: 2px; }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 0; top: 0;
+    font-weight: 700; color: #b3261e; font-size: 8px;
+  }
+  .step li::before, .step::after { content: none; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1: ONE-SHEET QUICK REFERENCE ============ -->
+<section class="sheet">
+  <div class="masthead">
+    <div class="ball"></div>
+    <div class="title-block">
+      <h1>Pok&eacute;r</h1>
+      <div class="sub">Pok&eacute;mon &times; Poker &middot; Quick Rule Sheet</div>
+      <div class="by">A card game by Owen</div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="col-left">
+      <div class="block">
+        <h2>Objective</h2>
+        <p>Build the best <strong>5-card hand</strong> from standard playing cards. Win Pok&eacute;mon cards through betting and claim the highest score when the round ends.</p>
+      </div>
+
+      <div class="block">
+        <h2>What You Need</h2>
+        <ul class="tight">
+          <li>1 standard deck of playing cards (Jokers optional)</li>
+          <li>Pok&eacute;mon cards &mdash; used as currency</li>
+          <li>2 or more players</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2>Setup</h2>
+        <ul class="tight">
+          <li>Place <strong>10 playing cards face down</strong> in the center (2 rows of 5).</li>
+          <li>Deal each player <strong>5 playing cards</strong> (kept hidden).</li>
+          <li>Each player chooses <strong>6 Pok&eacute;mon cards</strong> from their collection (3 Basic, 2 Stage 1, 1 Special), placed face up in front of them (3-card row over a 3-card row).</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2>Pok&eacute;mon Card Values</h2>
+        <table>
+          <tr><td>Basic Pok&eacute;mon</td><td class="r"><span class="pill">1 PP</span></td></tr>
+          <tr><td>Stage 1 Pok&eacute;mon</td><td class="r"><span class="pill">2 PP</span></td></tr>
+          <tr><td>Special (V, holo, etc.)</td><td class="r"><span class="pill">3 PP</span></td></tr>
+        </table>
+        <p class="muted" style="margin-top:3px">PP = Pok&eacute;Points. Each player's 6 cards = 3 Basic, 2 Stage&nbsp;1, 1 Special.</p>
+      </div>
+
+      <div class="block">
+        <h2>Betting</h2>
+        <ul class="tight">
+          <li>Bet immediately after receiving your 5 cards.</li>
+          <li>Each turn: <strong>match</strong> the highest bet, <strong>raise</strong> it, or <strong>fold</strong>.</li>
+          <li>If someone bets 2 PP, everyone must bet 2 PP or more to stay in.</li>
+          <li>All bet cards go to the central pot and are locked in &mdash; no take-backs.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2>Center Cards (Drafting)</h2>
+        <ul class="tight">
+          <li>Players take turns flipping center cards one at a time.</li>
+          <li>When a card flips, anyone may call <strong>&ldquo;Dibs!&rdquo;</strong></li>
+          <li>The first valid Dibs claims the card &mdash; even if you misread it, you must take it.</li>
+          <li>If no one claims it, it stays face up as an option.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="block">
+        <h2>Hand Limit &amp; Swap</h2>
+        <ul class="tight">
+          <li>You must always hold <strong>exactly 5 cards</strong>.</li>
+          <li>When you take a card: add it, then choose 1 card to remove.</li>
+          <li>Place the removed card face up in the spot the claimed card came from.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2>Stealing</h2>
+        <ul class="tight">
+          <li>Any face-up replacement card may be taken by another player.</li>
+          <li>They must swap one of their own cards into that same spot.</li>
+          <li>Hand size always stays at 5.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2>Scoring &mdash; No Stacking</h2>
+        <p class="muted" style="margin-bottom:4px">Score only your single best combination.</p>
+        <table class="scoretable">
+          <tr><td><strong>Runs</strong> (cards in sequence)</td><td></td></tr>
+          <tr><td>2 in a row</td><td class="r">5</td></tr>
+          <tr><td>3 in a row</td><td class="r">10</td></tr>
+          <tr><td>4 in a row</td><td class="r">15</td></tr>
+          <tr><td>5 in a row</td><td class="r">20</td></tr>
+          <tr><td><strong>Suits</strong> (same suit)</td><td></td></tr>
+          <tr><td>2 of a suit</td><td class="r">5</td></tr>
+          <tr><td>3 of a suit</td><td class="r">10</td></tr>
+          <tr><td>4 of a suit</td><td class="r">15</td></tr>
+          <tr><td>5 of a suit</td><td class="r">20</td></tr>
+        </table>
+        <div class="perfect">
+          <b>SPECIAL</b> &nbsp; Both Jokers = <b>50</b> &middot; Perfect Run (5 in order, same suit) = <b>50</b>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>End &amp; Winning</h2>
+        <ul class="tight">
+          <li>The round ends when all 10 center cards are flipped and resolved.</li>
+          <li>Highest-scoring hand wins and takes the whole Pok&eacute;mon pot.</li>
+          <li><strong>Tiebreaker:</strong> If scores are tied, highest single card wins.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2>The Bank</h2>
+        <ul class="tight">
+          <li>Pok&eacute;mon cards you win go into your <strong>Bank</strong> &mdash; kept separate from your active 6.</li>
+          <li>If you run out of usable Pok&eacute;mon cards, refill from your Bank.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <div class="callout">
+          <div class="lead">Remember</div>
+          Always 5 cards in hand &middot; &ldquo;Dibs&rdquo; is final &middot; no stacking scores &middot; swapped cards go face up in the center spot they came from.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>POK&Eacute;R &mdash; QUICK RULE SHEET</span>
+    <span>Pok&eacute;mon cards are currency &middot; Playing cards score the round</span>
+  </div>
+</section>
+
+<!-- ============ PAGE 2: FULL RULEBOOK ============ -->
+<section class="sheet doc">
+  <div class="masthead">
+    <div class="ball"></div>
+    <div class="title-block">
+      <h1>Pok&eacute;r</h1>
+      <div class="sub">Full Rules &amp; Instructions</div>
+      <div class="by">A card game by Owen</div>
+    </div>
+  </div>
+
+  <p class="doc-intro">
+    Pok&eacute;r is a hybrid of poker, drafting, and real-time claiming. Standard playing cards
+    decide who wins each round; Pok&eacute;mon cards are the betting currency and the prize.
+  </p>
+
+  <div class="cols">
+    <div class="col-left">
+      <div class="block">
+        <h2><span class="n">1</span>Objective</h2>
+        <p>Score the highest total by building the best 5-card hand from standard playing cards, while using Pok&eacute;mon cards as a betting and reward system.</p>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">2</span>Materials</h2>
+        <ul class="tight">
+          <li>1 standard deck of playing cards (including Jokers if used)</li>
+          <li>Pok&eacute;mon cards, used as currency</li>
+          <li>At least 2 players</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">3</span>Setup</h2>
+        <ul class="seq tight">
+          <li class="step">Place 10 playing cards face down in the center, in two rows of five.</li>
+          <li class="step">Deal each player 5 playing cards, kept hidden from others.</li>
+          <li class="step">Each player chooses 6 Pok&eacute;mon cards from their collection: 3 Basic, 2 Stage&nbsp;1, 1 Special.</li>
+          <li class="step">Each player places their Pok&eacute;mon face up &mdash; a 3-card row over a 3-card row &mdash; visible to all.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">4</span>Pok&eacute;mon as Currency</h2>
+        <table>
+          <tr><td>Basic Pok&eacute;mon</td><td class="r">1 PP</td></tr>
+          <tr><td>Stage 1 Pok&eacute;mon</td><td class="r">2 PP</td></tr>
+          <tr><td>Special (V, holo, etc.)</td><td class="r">3 PP</td></tr>
+        </table>
+        <p class="muted" style="margin-top:3px">All Pok&eacute;mon bet into the pot cannot be taken back.</p>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">5</span>Betting</h2>
+        <p>Betting begins immediately after players receive their 5 playing cards. Each player must:</p>
+        <ul class="tight">
+          <li>Match the current highest bet, or</li>
+          <li>Raise the bet (bet more PP), or</li>
+          <li>Fold and sit out the round.</li>
+        </ul>
+        <p>If a player bets 2 PP, all others must bet 2 PP or more to remain in the round.</p>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">6</span>Center Card System</h2>
+        <ul class="tight">
+          <li>Players take turns flipping one of the 10 center cards.</li>
+          <li>When a card flips, players may call &ldquo;Dibs&rdquo; to claim it.</li>
+          <li>The first valid Dibs call wins the card.</li>
+          <li>A claimed card must be taken even if the player misread it.</li>
+          <li>You must keep exactly 5 cards in hand at all times.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="block">
+        <h2><span class="n">7</span>Swap Rule</h2>
+        <p>When you take a card from the center:</p>
+        <ul class="tight">
+          <li>Add the card to your hand.</li>
+          <li>Choose one card from your hand to remove.</li>
+          <li>Place the removed card face up in the exact spot the claimed card was flipped.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">8</span>Stealing Rule</h2>
+        <ul class="tight">
+          <li>Any face-up replacement card on the table may be taken by another player.</li>
+          <li>They immediately replace it with one card from their own hand, in the same spot.</li>
+          <li>Players always maintain exactly 5 cards in hand.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">9</span>Scoring &mdash; No Stacking</h2>
+        <p class="muted" style="margin-bottom:3px">Score only ONE category per hand &mdash; your highest valid score.</p>
+        <table class="scoretable">
+          <tr><td><strong>Runs</strong></td><td class="r"></td></tr>
+          <tr><td>2 consecutive cards</td><td class="r">5</td></tr>
+          <tr><td>3 consecutive cards</td><td class="r">10</td></tr>
+          <tr><td>4 consecutive cards</td><td class="r">15</td></tr>
+          <tr><td>5 consecutive cards</td><td class="r">20</td></tr>
+          <tr><td><strong>Suits</strong></td><td class="r"></td></tr>
+          <tr><td>2 cards of same suit</td><td class="r">5</td></tr>
+          <tr><td>3 cards of same suit</td><td class="r">10</td></tr>
+          <tr><td>4 cards of same suit</td><td class="r">15</td></tr>
+          <tr><td>5 cards of same suit</td><td class="r">20</td></tr>
+        </table>
+        <div class="perfect" style="margin-top:4px">
+          <b>SPECIAL COMBINATIONS</b><br>
+          Both Jokers = <b>50</b> &nbsp;&middot;&nbsp; Perfect Run (5 consecutive, same suit) = <b>50</b>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">10</span>Round End &amp; Winning</h2>
+        <ul class="tight">
+          <li>The round ends when all 10 center cards have been flipped and resolved.</li>
+          <li>Each player scores their final 5-card hand.</li>
+          <li>The highest score wins the round and collects all Pok&eacute;mon cards in the pot.</li>
+          <li><strong>Tiebreaker:</strong> If two or more players have the same score, the player with the highest single card wins.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <h2><span class="n">11</span>Bank System</h2>
+        <ul class="tight">
+          <li>Pok&eacute;mon cards won in the pot go into the player's Bank.</li>
+          <li>The Bank is a separate pile from your active Pok&eacute;mon.</li>
+          <li>If you run out of usable Pok&eacute;mon cards, refill from your Bank.</li>
+        </ul>
+      </div>
+
+      <div class="block">
+        <div class="callout">
+          <div class="lead">Key Rules Summary</div>
+          Always hold exactly 5 playing cards &middot; &ldquo;Dibs&rdquo; is final and cannot be reversed &middot;
+          all swaps go face up in the original center position &middot; scores never stack &middot;
+          Pok&eacute;mon cards are only for betting and banking.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>POK&Eacute;R &mdash; FULL RULEBOOK</span>
+    <span>Page 2</span>
+  </div>
+</section>
+
+</body>
+</html>
