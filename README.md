@@ -1,4 +1,4 @@
-# funny/minechicken.github.io
+# minechicken.github.io
 
 Very *Kool* page by *minechicken98* and with help from *Claude Code* and *doggodgcodes*, yippee, because here, there is games and random ahh stuff yay!
 
